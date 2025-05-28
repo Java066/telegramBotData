@@ -17,6 +17,7 @@ async def handler(event):
     message = event.message.message.lower()
 
     # 📟 Логирование ID чата в консоль
+    print("✅ handler triggered")
     print(f"📟 Chat info — ID: {event.chat_id}, Type: {'group/channel' if event.is_group or event.is_channel else 'private'}")
 
     if any(keyword in message for keyword in keywords):
