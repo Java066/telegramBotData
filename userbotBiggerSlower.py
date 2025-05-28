@@ -7,7 +7,7 @@ api_id = 24850651
 api_hash = '43613f2fdc2777422c6357a018b00070'
 receiver_id = -4944695970  # Куда пересылать результат
 
-keywords = ['нужен электрик', 'ищу электрика', 'требуется электрик''.']
+keywords = ['нужен электрик', 'ищу электрик', 'требуется электрик', 'привет']
 message_check_limit = 5000
 search_interval_seconds = 1800  # 30 минут
 
@@ -18,6 +18,11 @@ last_seen_ids = {}
 async def search_in_chats():
     async for dialog in client.iter_dialogs():
         chat_id = dialog.id
+
+        # 🚫 Исключаем только чат-получатель, чтобы не было бесконечной пересылки
+        if chat_id == receiver_id:
+            continue
+
         try:
             print(f"🔍 Проверка чата: {dialog.name} ({chat_id})")
 
@@ -32,11 +37,11 @@ async def search_in_chats():
                         now = datetime.now().strftime("%d.%m.%Y %H:%M")
                         sender = await message.get_sender()
 
-                        # 🔐 Безопасное получение имени отправителя
+                        # 🔐 Получение имени отправителя
                         if hasattr(sender, 'first_name') or hasattr(sender, 'last_name'):
                             sender_name = f"{getattr(sender, 'first_name', '')} {getattr(sender, 'last_name', '')}".strip()
                         elif hasattr(sender, 'title'):
-                            sender_name = sender.title  # имя канала
+                            sender_name = sender.title  # название канала
                         else:
                             sender_name = 'Неизвестный отправитель'
 
@@ -54,6 +59,7 @@ async def search_in_chats():
                             f"🔗 Ссылка: {link}"
                         )
 
+                # Обновляем ID последнего проверенного сообщения
                 last_seen_ids[chat_id] = max(last_seen_ids.get(chat_id, 0), message.id)
 
         except Exception as e:
